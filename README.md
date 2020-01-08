@@ -31,6 +31,3 @@ JWT_AUTH = {
 ```
 
 Don't forget to add jwt_auth to dhango's installed apps.
-
-## Test
-
