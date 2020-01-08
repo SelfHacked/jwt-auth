@@ -1,0 +1,9 @@
+# pipenv
+Pipfile
+Pipfile.lock
+
+# VS Code settings
+.vscode
+
+# python cache
+*.pyc
