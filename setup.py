@@ -1,9 +1,8 @@
 from setuptools import setup
 
 setup(
+    name='jwt_auth',
     install_requires=[
-        name='jwt_auth',
-        packages=['jwt_auth'],
         'cryptography',
         'pyjwt',
     ]
