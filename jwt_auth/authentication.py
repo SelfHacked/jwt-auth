@@ -47,7 +47,7 @@ class JWTAuthentication(BaseAuthentication):
 
     @staticmethod
     def _get_token(request: HttpRequest) -> Union[str, None]:
-        """Get the JWT from.
+        """Get the JWT.
 
         Args:
             request: The http request from which to get the auth header.
