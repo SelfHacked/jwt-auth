@@ -7,5 +7,7 @@ setup(
     install_requires=[
         'cryptography',
         'pyjwt',
+        'django',
+        'djangorestframework',
     ]
 )
