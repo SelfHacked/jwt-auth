@@ -1,0 +1,8 @@
+pyjwt[cryptography]
+django
+djangorestframework
+pytest
+pytest-django
+mypy
+flake8
+autopep8
