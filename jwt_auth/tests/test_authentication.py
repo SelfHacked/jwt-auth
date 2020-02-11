@@ -31,7 +31,7 @@ class TestAuthenticate:
         }
 
         # Create a request
-        key = settings.JWT_AUTH['OIDC_KEY']
+        key = settings.JWT_AUTH['TEST_KEY']
         token = jwt.encode(payload, key, 'HS256').decode()
         header_string = 'JWT ' + token
         request = HttpRequest()
@@ -61,7 +61,7 @@ class TestAuthenticate:
         }
 
         # Create a request
-        key = settings.JWT_AUTH['OIDC_KEY']
+        key = settings.JWT_AUTH['TEST_KEY']
         token = jwt.encode(payload, key, 'HS256').decode()
         header_string = 'JWT ' + token
         request = HttpRequest()
@@ -92,7 +92,7 @@ class TestAuthenticate:
         }
 
         # Create a request
-        key = settings.JWT_AUTH['OIDC_KEY']
+        key = settings.JWT_AUTH['TEST_KEY']
         token = jwt.encode(payload, key, 'HS256').decode()
         header_string = 'JWT ' + token
         request = HttpRequest()
@@ -123,7 +123,7 @@ class TestAuthenticate:
         }
 
         # Create a request
-        key = settings.JWT_AUTH['OIDC_KEY']
+        key = settings.JWT_AUTH['TEST_KEY']
         token = jwt.encode(payload, key, 'HS256').decode()
         header_string = 'JWT ' + token
         request = HttpRequest()
@@ -177,7 +177,7 @@ class TestAuthenticate:
         }
 
         # Create a request
-        key = settings.JWT_AUTH['OIDC_KEY']
+        key = settings.JWT_AUTH['TEST_KEY']
         token = jwt.encode(payload, key, 'HS256').decode()
         header_string = 'JWT ' + token
         request = HttpRequest()
@@ -216,7 +216,7 @@ class TestAuthenticate:
         # Create multiple keys
         settings.JWT_AUTH.update(
             {
-                'OIDC_KEY': uuid4().hex,
+                'TEST_KEY': uuid4().hex,
                 'test1_KEY': uuid4().hex,
                 'test2_KEY': uuid4().hex,
                 'SERVICE_KEY': uuid4().hex,
