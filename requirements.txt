@@ -3,6 +3,7 @@ django
 djangorestframework
 pytest
 pytest-django
+pytest-cov
 mypy
 flake8
 autopep8
