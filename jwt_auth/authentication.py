@@ -2,14 +2,19 @@
 """
 
 from typing import Union
+from uuid import UUID
 
-import jwt
+import requests
 
 from django.http import HttpRequest
 from django.conf import settings
 
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
+
+from jwt_auth.jwt import JWT
+from jwt_auth.models import User
+from jwt_auth.service_authorization import ServiceRequestAuth
 
 
 class JWTAuthentication(BaseAuthentication):
@@ -27,9 +32,11 @@ class JWTAuthentication(BaseAuthentication):
         """
         token = self._get_token(request)
         if token:
-            claims = self._decode_token(token)
-            user = self._parse_jwt(claims)
-            return (user, token)
+            try:
+                user = self._get_user(token)
+            except Exception:
+                raise AuthenticationFailed()
+            return user, token
         return None
 
     def authenticate_header(self, request: HttpRequest) -> str:
@@ -42,8 +49,45 @@ class JWTAuthentication(BaseAuthentication):
             The WWW-Authenticate header value to use.
         """
         host = request.get_host()
-        host = host.replace('www', '')
+        host = host.replace('www.', '')
         return 'aps.{host}/user/accounts/login/'.format(host=host)
+
+    @classmethod
+    def _get_user(cls, token: str) -> User:
+        """Get the user represented by the given JWT.
+
+        Args:
+            request: The request being processed
+
+        Returns:
+            The user who made the request
+        """
+        keys = settings.JWT_AUTH['KEYS']
+        jwt = JWT(token, keys)
+        user = User(**jwt.payload)  # payload must have uuid and email.
+        authorization = cls._get_authorization(user.id)
+        user.set_authorization(**authorization)
+        return user
+
+    @staticmethod
+    def _get_authorization(user_id: UUID) -> dict:
+        """Get the user's authorization data
+
+        Args:
+            user_id: The id for the user who's authorization we want.
+
+        Returns:
+            The authorization data.
+        """
+        url = settings.JWT_AUTH['PERMISSION_ENDPOINT']
+        uuid_string = str(user_id)
+        response = requests.get(
+            url,
+            params={'uuid': uuid_string},
+            auth=ServiceRequestAuth(),
+        )
+        response.raise_for_status()
+        return response.json()
 
     @staticmethod
     def _get_token(request: HttpRequest) -> Union[str, None]:
@@ -59,60 +103,3 @@ class JWTAuthentication(BaseAuthentication):
         if auth_header and auth_header.split()[0] == 'JWT':
             return auth_header.split()[1]
         return None
-
-    @staticmethod
-    def _decode_token(token: str) -> dict:
-        """Decode a jwt.
-
-        Args:
-            token: The token to be decoded.
-
-        Raises:
-            AuthenticationFailed: If the signature does not match or the token
-                is expired.
-
-        Returns:
-            The decoded JWT
-        """
-        for key in settings.JWT_AUTH:
-
-            # If the setting contains a key try to decode the jwt with it
-            if key.split('_')[-1] == 'KEY':
-                jwt_key = settings.JWT_AUTH[key]
-                try:
-                    return jwt.decode(
-                        token,
-                        jwt_key,
-                        algorithms=['HS256', 'RS256']
-                    )
-
-                # If an InvalidSignatureError was raised try another key
-                except jwt.InvalidSignatureError:
-                    continue
-
-                # If some other exception was raised raise AuthenticationFailed
-                except Exception:
-                    raise AuthenticationFailed()
-
-        # If none of the keys work raise AuthenticationFailed
-        raise AuthenticationFailed()
-
-    @staticmethod
-    def _parse_jwt(claims: dict) -> dict:
-        """Used for initializing missing values from the decoded JWT.
-
-        Args:
-            jwt: The decoded jwt
-
-        Returns:
-            dict: The contents of the JWT.
-        """
-        user = {
-            **claims,
-            'id': claims.get('id', None),
-            'subscription_type': claims.get('subscription_type', []),
-            'role': claims.get('role', []),
-        }
-        if not user['id']:
-            raise AuthenticationFailed()
-        return user
