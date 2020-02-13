@@ -1,6 +1,7 @@
 pyjwt[cryptography]
 django
 djangorestframework
+requests
 pytest
 pytest-django
 pytest-cov
