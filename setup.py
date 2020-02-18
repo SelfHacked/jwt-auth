@@ -9,5 +9,6 @@ setup(
         'pyjwt',
         'django',
         'djangorestframework',
+        'requests',
     ]
 )

@@ -1,8 +1,10 @@
 pyjwt[cryptography]
 django
 djangorestframework
+requests
 pytest
 pytest-django
+pytest-cov
 mypy
 flake8
 autopep8
