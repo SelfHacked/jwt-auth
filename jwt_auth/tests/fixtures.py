@@ -17,20 +17,12 @@ def make_authorization_data():
                 'is_superuser': False,
                 'groups': ['Admin', 'Writer'],
             },
-            'subscriptions': [
-                {
-                    'type': 'Test-Subscription1',
-                    'is_expired': False
-                },
-                {
-                    'type': 'Test-Subscription2',
-                    'is_expired': True
-                },
-                {
-                    'type': 'Test-Subscription3',
-                    'is_expired': False
-                },
-            ]
+            'subscription': {
+                'plan': 'Test-Subscription1',
+                'status': 'active',
+                'start_date_time': '2019-01-03T17:41:42Z',
+                'end_date_time': '2019-09-03T16:41:42Z'
+            },
         }
         data.update(kwargs)
         return data
