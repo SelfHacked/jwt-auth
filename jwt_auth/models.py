@@ -11,12 +11,12 @@ class User:
 
     def __init__(
         self,
-        uuid_str: str,
+        uuid: str,
         email: str,
         subscriptions: Optional[List[dict]] = None,
         **kwargs
     ):
-        self._uuid = UUID(uuid_str)
+        self._uuid = UUID(uuid)
         self._email = email
         self._subscriptions = subscriptions or []
         self._properties = kwargs

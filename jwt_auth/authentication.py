@@ -66,7 +66,7 @@ class JWTAuthentication(BaseAuthentication):
         jwt = JWT(token, keys)
         user = User(**jwt.payload)  # payload must have uuid and email.
         authorization = cls._get_authorization(user.id)
-        user.set_authorization(**authorization)
+        user.set_authorization(authorization)
         return user
 
     @staticmethod
