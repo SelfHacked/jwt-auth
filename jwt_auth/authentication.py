@@ -1,5 +1,4 @@
-"""Provides a custom authentication class for JWT based authentication.
-"""
+"""Provides a custom authentication class for JWT based authentication."""
 
 from typing import Union
 from uuid import UUID
