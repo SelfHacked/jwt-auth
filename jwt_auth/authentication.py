@@ -102,3 +102,63 @@ class JWTAuthentication(BaseAuthentication):
         if auth_header and auth_header.split()[0] == 'JWT':
             return auth_header.split()[1]
         return None
+
+
+class ServiceTokenAuthentication(BaseAuthentication):
+    """Authenticate requests with Service Token."""
+
+    def authenticate(self, request: HttpRequest) -> Union[tuple, None]:
+        """Used to authenticate the service request
+
+        Args:
+            request: The request object. Must contain a headers `dict`.
+
+        Returns:
+            The `user` and `auth` for the request. Or None if JWT was not used.
+        """
+        token = self._get_token(request)
+        service_token = settings.JWT_AUTH['SERVICE_SECRET_TOKEN']
+
+        if token != service_token:
+            return None
+
+        return self._get_user(), token
+
+    def authenticate_header(self, request: HttpRequest) -> str:
+        """Generate a value WWW-Authenticate header value.
+
+        Args:
+            request: The request object
+
+        Returns:
+            The WWW-Authenticate header value to use.
+        """
+        host = request.get_host()
+        host = host.replace('www.', '')
+        return 'aps.{host}/user/accounts/login/'.format(host=host)
+
+    @classmethod
+    def _get_user(cls) -> User:
+        """Create the default service user.
+
+        Returns:
+            The user who made the request.
+        """
+        user = User(
+            uuid_str='00000000-0000-0000-0000-000000000000',
+            email='service@selfdecode.com',
+        )
+        user.set_service()
+        return user
+
+    @staticmethod
+    def _get_token(request: HttpRequest) -> Union[str, None]:
+        """Get the Service token.
+
+        Args:
+            request: The http request from which to get the auth header.
+
+        Returns:
+            The Service token or `None` if the Token not in request headers.
+        """
+        return request.headers.get('Token')

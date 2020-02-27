@@ -91,6 +91,15 @@ class User:
         self._properties['is_active'] = data.pop('is_active')
         self._properties.update(**data)
 
+    def set_service(self) -> None:
+        """Sets the system service user."""
+        self._set_roles({
+            'is_staff': True,
+            'is_active': True,
+            'is_superuser': False,
+            'role': ['service'],
+        })
+
     def get_active_subscriptions(self) -> List[str]:
         """Get a list of the user's un-expired subscriptions.
 
