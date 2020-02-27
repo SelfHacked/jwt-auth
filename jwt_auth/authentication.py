@@ -145,7 +145,7 @@ class ServiceTokenAuthentication(BaseAuthentication):
             The user who made the request.
         """
         user = User(
-            uuid_str='00000000-0000-0000-0000-000000000000',
+            uuid='00000000-0000-0000-0000-000000000000',
             email='service@selfdecode.com',
         )
         user.set_service()
