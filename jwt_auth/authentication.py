@@ -119,6 +119,9 @@ class ServiceTokenAuthentication(BaseAuthentication):
         token = self._get_token(request)
         service_token = settings.JWT_AUTH['SERVICE_SECRET_TOKEN']
 
+        if not token or not service_token:
+            return None
+
         if token != service_token:
             return None
 
