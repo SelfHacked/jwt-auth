@@ -135,7 +135,7 @@ class TestSetAuthorization:
         assert user.groups == role['groups']
 
     @staticmethod
-    def test_subscriptions(make_authorization_data):
+    def test_subscription(make_authorization_data):
         """Test that the subscription is set properly
         """
         # Create a user
@@ -144,108 +144,21 @@ class TestSetAuthorization:
         user = User(str(user_id), email)
 
         # Make test date
-        subscriptions = [
-            {
-                'type': 'test-subscription1',
-                'is_expired': False,
-            },
-            {
-                'type': 'test-subscription2',
-                'is_expired': True,
-            }
-        ]
+        subscription = {
+            'plan': 'test-subscription1',
+            'status': 'active',
+            'start_date_time': '2019-01-03T17:41:42Z',
+            'end_date_time': '2019-09-03T16:41:42Z'
+        }
         data = make_authorization_data(
-            subscriptions=subscriptions
+            subscription=subscription
         )
 
         # invoke the function
         user.set_authorization(data)
 
         # test our expectations
-        assert user._subscriptions == subscriptions
-
-
-class TestGetActiveSubscriptions:
-    """test the User.get_active_subscriptions function
-    """
-
-    @staticmethod
-    def test(make_authorization_data):
-        """Test that the right subscriptions are included.
-        """
-        # Create a user
-        user_id = uuid4()
-        email = 'test_user@example.com'
-        user = User(str(user_id), email)
-
-        # Make some data
-        subscriptions = [
-            {
-                'type': 'Test-Subscription1',
-                'is_expired': False
-            },
-            {
-                'type': 'Test-Subscription2',
-                'is_expired': True
-            },
-            {
-                'type': 'Test-Subscription3',
-                'is_expired': False
-            },
-        ]
-        data = make_authorization_data(subscriptions=subscriptions)
-        user.set_authorization(data)
-
-        # invoke the function
-        actual = user.get_active_subscriptions()
-
-        # Test our expectations
-        expected = [
-            'Test-Subscription1',
-            'Test-Subscription3',
-        ]
-        assert expected == actual
-
-
-class TestGetExpiredSubscriptions:
-    """test the User.get_expired_subscriptions function
-    """
-
-    @staticmethod
-    def test(make_authorization_data):
-        """Test that the right subscriptions are included.
-        """
-        # Create a user
-        user_id = uuid4()
-        email = 'test_user@example.com'
-        user = User(str(user_id), email)
-
-        # Make some data
-        subscriptions = [
-            {
-                'type': 'Test-Subscription1',
-                'is_expired': False
-            },
-            {
-                'type': 'Test-Subscription2',
-                'is_expired': True
-            },
-            {
-                'type': 'Test-Subscription3',
-                'is_expired': False
-            },
-        ]
-        data = make_authorization_data(subscriptions=subscriptions)
-        user.set_authorization(data)
-
-        # invoke the function
-        actual = user.get_expired_subscriptions()
-
-        # Test our expectations
-        expected = [
-            'Test-Subscription2',
-        ]
-        assert expected == actual
+        assert user.subscription == subscription
 
 
 class TestCheckSubscription:
@@ -254,7 +167,7 @@ class TestCheckSubscription:
 
     @staticmethod
     def test_not_active(make_authorization_data):
-        """Test when the given subscription is not active
+        """Test when the subscription is not active
         """
         # Create a user
         user_id = uuid4()
@@ -262,21 +175,13 @@ class TestCheckSubscription:
         user = User(str(user_id), email)
 
         # Make some data
-        subscriptions = [
-            {
-                'type': 'Test-Subscription1',
-                'is_expired': False
-            },
-            {
-                'type': 'Test-Subscription2',
-                'is_expired': True
-            },
-            {
-                'type': 'Test-Subscription3',
-                'is_expired': False
-            },
-        ]
-        data = make_authorization_data(subscriptions=subscriptions)
+        subscription = {
+            'plan': 'Test-Subscription1',
+            'status': 'inactive',
+            'start_date_time': '2019-01-03T17:41:42Z',
+            'end_date_time': '2019-09-03T16:41:42Z'
+        }
+        data = make_authorization_data(subscription=subscription)
         user.set_authorization(data)
 
         # invoke the function
@@ -295,21 +200,13 @@ class TestCheckSubscription:
         user = User(str(user_id), email)
 
         # Make some data
-        subscriptions = [
-            {
-                'type': 'Test-Subscription1',
-                'is_expired': False
-            },
-            {
-                'type': 'Test-Subscription2',
-                'is_expired': True
-            },
-            {
-                'type': 'Test-Subscription3',
-                'is_expired': False
-            },
-        ]
-        data = make_authorization_data(subscriptions=subscriptions)
+        subscription = {
+            'plan': 'Test-Subscription1',
+            'status': 'active',
+            'start_date_time': '2019-01-03T17:41:42Z',
+            'end_date_time': '2019-09-03T16:41:42Z'
+        }
+        data = make_authorization_data(subscription=subscription)
         user.set_authorization(data)
 
         # invoke the function
@@ -328,21 +225,13 @@ class TestCheckSubscription:
         user = User(str(user_id), email)
 
         # Make some data
-        subscriptions = [
-            {
-                'type': 'Test-Subscription1',
-                'is_expired': False
-            },
-            {
-                'type': 'Test-Subscription2',
-                'is_expired': True
-            },
-            {
-                'type': 'Test-Subscription3',
-                'is_expired': False
-            },
-        ]
-        data = make_authorization_data(subscriptions=subscriptions)
+        subscription = {
+            'plan': 'Test-Subscription1',
+            'status': 'active',
+            'start_date_time': '2019-01-03T17:41:42Z',
+            'end_date_time': '2019-09-03T16:41:42Z'
+        }
+        data = make_authorization_data(subscription=subscription)
         user.set_authorization(data)
 
         # invoke the function

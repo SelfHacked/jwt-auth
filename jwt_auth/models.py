@@ -1,7 +1,6 @@
 """Holds the data structures for this app.
 """
-from functools import reduce
-from typing import List, Optional
+from typing import Optional
 from uuid import UUID
 
 
@@ -11,14 +10,14 @@ class User:
 
     def __init__(
         self,
-        uuid_str: str,
+        uuid: str,
         email: str,
-        subscriptions: Optional[List[dict]] = None,
+        subscription: Optional[dict] = None,
         **kwargs
     ):
-        self._uuid = UUID(uuid_str)
+        self._uuid = UUID(uuid)
         self._email = email
-        self._subscriptions = subscriptions or []
+        self._subscription = subscription or {}
         self._properties = kwargs
 
     def __getattr__(self, name: str):
@@ -62,6 +61,12 @@ class User:
         """
         return False
 
+    @property
+    def subscription(self):
+        """The user's subscription
+        """
+        return self._subscription
+
     def set_authorization(self, authorization: dict):
         """Sets the user's authorization data.
 
@@ -77,17 +82,15 @@ class User:
                         'is_superuser': False,
                         'groups': ['Admin', 'Writer'],
                     },
-                    'subscriptions': [
-                        {
-                            'type': 'professional-monthly',
-                            'is_expired': False
-                        },
-                    ]
+                    'subscription': {
+                        'type': 'professional-monthly',
+                        'is_expired': False
+                    },
                 }
         """
         data = authorization.copy()
         self._set_roles(data.pop('role'))
-        self._set_subscriptions(data.pop('subscriptions'))
+        self._set_subscription(data.pop('subscription'))
         self._properties['is_active'] = data.pop('is_active')
         self._properties.update(**data)
 
@@ -100,30 +103,6 @@ class User:
             'role': ['service'],
         })
 
-    def get_active_subscriptions(self) -> List[str]:
-        """Get a list of the user's un-expired subscriptions.
-
-        Returns:
-            List of user's subscriptions that are not expired.
-        """
-        result = []
-        for subscription in self._subscriptions:
-            if not subscription['is_expired']:
-                result.append(subscription['type'])
-        return result
-
-    def get_expired_subscriptions(self) -> List[str]:
-        """Get the list of the user's expired subscriptions.
-
-        Returns:
-            The subscriptions with is_expired set to `True`.
-        """
-        result = []
-        for subscription in self._subscriptions:
-            if subscription['is_expired']:
-                result.append(subscription['type'])
-        return result
-
     def check_subscription(self, name: str) -> bool:
         """Check if the user has an un-expired subscription of the given type
 
@@ -134,12 +113,9 @@ class User:
             `True` if the user has the given subscription and it is not
             expired, `False` otherwise.
         """
-        result = reduce(
-            lambda acc, value: acc or value == name,
-            self.get_active_subscriptions(),
-            False,
-        )
-        return result
+        has_plan = self.subscription['plan'] == name
+        not_expired = self.subscription['status'] == 'active'
+        return has_plan and not_expired
 
     def _set_roles(self, roles: dict):
         """Adds the given roles to this user.
@@ -157,14 +133,16 @@ class User:
         """
         self._properties.update(**roles)
 
-    def _set_subscriptions(self, subscriptions: List[dict]):
+    def _set_subscription(self, subscription: dict):
         """Sets the user's subscriptions.
 
         Example:
             The subscriptions must be of the form::
                 {
-                    'type': 'professional-monthly',
-                    'is_expired': False
+                    "plan": "professional-monthly",
+                    "status": "active",
+                    "start_date_time": "2019-01-03T17:41:42Z",
+                    "end_date_time": "2019-09-03T16:41:42Z"
                 }
         """
-        self._subscriptions = subscriptions
+        self._subscription = subscription
