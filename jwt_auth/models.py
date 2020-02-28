@@ -100,7 +100,7 @@ class User:
             'is_staff': True,
             'is_active': True,
             'is_superuser': False,
-            'role': ['service'],
+            'groups': ['Service'],
         })
 
     def check_subscription(self, name: str) -> bool:
