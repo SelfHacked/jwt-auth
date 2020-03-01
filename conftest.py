@@ -9,6 +9,6 @@ def pytest_configure():
             'A super secret key',
         ],
         'PERMISSION_ENDPOINT': '',
-        'SERVICE_SECRET_TOKEN': 'super secret'
+        'SERVICE_SECRET_TOKEN': 'super secret',
     }
     settings.ALLOWED_HOSTS = ['www.example.com', 'example.com']
