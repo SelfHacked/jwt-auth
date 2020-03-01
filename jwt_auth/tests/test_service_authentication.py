@@ -1,8 +1,11 @@
 """Tests for the JWTAuthentication class
 """
-
-from django.http import HttpRequest
 from uuid import UUID
+
+import pytest
+from django.http import HttpRequest
+from rest_framework.exceptions import AuthenticationFailed
+
 from jwt_auth.authentication import ServiceTokenAuthentication
 
 
@@ -23,7 +26,8 @@ class TestAuthenticate:
         request = HttpRequest()
         request.META['HTTP_TOKEN'] = header_string
 
-        assert ServiceTokenAuthentication().authenticate(request) is None
+        with pytest.raises(AuthenticationFailed):
+            ServiceTokenAuthentication().authenticate(request)
 
     @staticmethod
     def test_valid_token():

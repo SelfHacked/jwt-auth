@@ -123,7 +123,7 @@ class ServiceTokenAuthentication(BaseAuthentication):
             return None
 
         if token != service_token:
-            return None
+            raise AuthenticationFailed()
 
         return self._get_user(), token
 
