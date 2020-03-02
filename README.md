@@ -18,11 +18,52 @@ using `pip`:
 $ pip install ssh+git@bitbucket.org:selfdecode/jwt-auth.git
 ```
 
+## Authentication
+
+The library currently supports Authentication for users using a JWT as well as
+for services using token base authentication.
+
+For services the `User` object is set with the email 'service@selfdecode.com'
+and the uuid is `00000000-0000-0000-0000-000000000000`.
+
+For the JWTs the library handles fetching the authorization details from the
+PERMISSION_ENDPOINT set in the settings.py file. The
+
+### Payloads
+
+The PERMISSION_ENDPOINT must return the following payload:
+
+```JSON
+{
+    "is_active": true,
+    "role": {
+        "is_staff": true,
+        "is_superuser": false,
+        "groups": ["Admin", "Writer"],
+    },
+    "subscription": {
+        "plan": "professional-monthly",
+        "status": "active",
+        "start_date_time": "2019-01-03T17:41:42Z",
+        "end_date_time": "2019-09-03T16:41:42Z",
+    },
+}
+```
+
+The JWT must have the following structure:
+
+```JSON
+{
+    "uuid": "...",
+    "email": "user@example.com"
+}
+```
+
 ## Settings
 
 The plugin looks for keys in django's settings.
 To add a key create a dict called `JWT_AUTH` in django's `settings.py` file
-with a field 'KEYS'. The plugin supports adding multiple keys. The following 
+with a field 'KEYS'. The plugin supports adding multiple keys. The following
 example creates two keys, one called `OIDC_KEY` and one called `SERVICE_KEY`:
 
 ```python
