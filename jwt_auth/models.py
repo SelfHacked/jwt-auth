@@ -83,8 +83,10 @@ class User:
                         'groups': ['Admin', 'Writer'],
                     },
                     'subscription': {
-                        'type': 'professional-monthly',
-                        'is_expired': False
+                        'plan': 'professional-monthly',
+                        'status': 'active',
+                        'start_date_time': '2019-01-03T17:41:42Z',
+                        'end_date_time': '2019-09-03T16:41:42Z',
                     },
                 }
         """
