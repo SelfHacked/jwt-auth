@@ -40,7 +40,7 @@ class Jwks:
         jwks_endpoint = settings.JWT_AUTH.get('JWKS_ENDPOINT')
         if not jwks_endpoint:
             return {}
-        
+
         response = requests.get(jwks_endpoint)
         response.raise_for_status()
 

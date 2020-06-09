@@ -61,12 +61,27 @@ class JWTAuthentication(BaseAuthentication):
         Returns:
             The user who made the request
         """
-        keys = settings.JWT_AUTH['KEYS']
-        jwt = JWT(token, keys)
-        user = User(**jwt.payload)  # payload must have uuid and email.
+        id_token = cls.get_id_token(token)
+        user = User(**id_token.payload)  # payload must have uuid and email.
         authorization = cls._get_authorization(user.id)
         user.set_authorization(authorization)
         return user
+
+    @staticmethod
+    def get_id_token(token: str) -> JWT:
+        """
+        Get ID Token from token string.
+
+        Args:
+            token: Token as string.
+
+        Returns:
+            ID token
+        """
+        keys = settings.JWT_AUTH.get('KEYS', [])
+
+        jwt = JWT(token, keys)
+        return jwt
 
     @staticmethod
     def _get_authorization(user_id: UUID) -> dict:
