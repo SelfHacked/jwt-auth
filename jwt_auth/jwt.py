@@ -1,3 +1,4 @@
+from django.conf import settings
 from typing import Optional, List
 
 import jwt
@@ -38,7 +39,10 @@ class JWT:
             self._token,
             key=JWKS.get_jwk(unverified_header),
             algorithms=['HS256', 'RS256'],
-            options={'verify_signature': True},
+            options={
+                'verify_signature': True,
+                'verify_aud': settings.JWT_AUTH.get('VERIFY_AUD', True),
+            },
         )
 
     def _decode(self) -> dict:
