@@ -44,8 +44,7 @@ class TestJwks:
             json=jwks,  # noqa
         )
 
-        with pytest.raises(SuspiciousOperation) as exp:
-            Jwks().get_jwk(jwt.get_unverified_header(jws))
+        assert Jwks().get_jwk(jwt.get_unverified_header(jws)) is None
 
     @responses.activate
     @override_settings(JWT_AUTH={'JWKS_ENDPOINT': 'http://test.com'})
@@ -61,3 +60,17 @@ class TestJwks:
         )
         with pytest.raises(SuspiciousOperation) as exp:
             Jwks().get_jwk(jwt.get_unverified_header(jws))
+
+    @responses.activate
+    def test_endpoint_not_set(self, private_key):
+        """Test that keys is fetched."""
+        jwks = make_jwks(private_key)
+        jwks['keys'][0]['kid'] = 'invalid'
+        jws = make_jws(private_key, 'TEST')
+
+        responses.add(
+            responses.GET, 'http://test.com',
+            json=jwks,  # noqa
+        )
+
+        assert Jwks().get_jwk(jwt.get_unverified_header(jws)) is None

@@ -21,14 +21,12 @@ class Jwks:
             self._jwks = self._get_jwks()
 
         key = self._find_jwk(header)
-        if key is None:
-            raise SuspiciousOperation('Could not find a valid JWKS.')
-
-        return RSAAlgorithm.from_jwk(json.dumps(key))
+        if key:
+            return RSAAlgorithm.from_jwk(json.dumps(key))
 
     def _find_jwk(self, header):
         key = None
-        for jwk in self._jwks['keys']:
+        for jwk in self._jwks.get('keys', []):
             if jwk['kid'] == force_str(header['kid']):
                 if 'alg' in jwk and jwk['alg'] != force_str(header['alg']):
                     raise SuspiciousOperation('alg values do not match.')
@@ -39,8 +37,10 @@ class Jwks:
 
     @staticmethod
     def _get_jwks() -> dict:
-        jwks_endpoint = settings.JWT_AUTH['JWKS_ENDPOINT']
-
+        jwks_endpoint = settings.JWT_AUTH.get('JWKS_ENDPOINT')
+        if not jwks_endpoint:
+            return {}
+        
         response = requests.get(jwks_endpoint)
         response.raise_for_status()
 
