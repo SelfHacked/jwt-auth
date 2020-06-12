@@ -12,11 +12,7 @@ JWKS = Jwks()
 class JWT:
     """Represents a JWT."""
 
-    def __init__(
-            self,
-            token: str,
-            keys: List[str],
-    ):
+    def __init__(self, token: str, keys: List[str]):
         self._token = token
         self._keys = keys
 
@@ -38,7 +34,7 @@ class JWT:
         return jwt.decode(
             self._token,
             key=JWKS.get_jwk(unverified_header),
-            algorithms=['HS256', 'RS256'],
+            algorithms=['RS256'],
             options={
                 'verify_signature': True,
                 'verify_aud': settings.JWT_AUTH.get('VERIFY_AUD', True),
