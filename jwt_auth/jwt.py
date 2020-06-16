@@ -1,3 +1,4 @@
+import typing
 from django.conf import settings
 from typing import Optional, List
 
@@ -22,40 +23,44 @@ class JWT:
     def payload(self) -> dict:
         """The payload stored in the jwt."""
         if self._payload is None:
+            # If RS256 header is detected, try to decode the token using
+            # JWKS if endpoint is configured.
+            keys = self._keys
             unverified_header = jwt.get_unverified_header(self._token)
-            if unverified_header.get('alg') == 'RS256':
-                self._payload = self._decode_rs256(unverified_header)
+            alg = unverified_header.get('alg')
+            if alg == 'RS256':
+                key = JWKS.get_jwk(unverified_header)
+                if key:
+                    # Use the fetched key because key is retrieved using
+                    # kid in the header, and therefore it should be valid.
+                    keys = [key]
 
-            if not self._payload:
-                self._payload = self._decode()
+            self._payload = self._decode(keys=keys, alg=alg)
 
         return self._payload
 
-    def _decode_rs256(self, unverified_header: dict):
-        """Decode JWS."""
-        return jwt.decode(
-            self._token,
-            key=JWKS.get_jwk(unverified_header),
-            algorithms=['RS256'],
-            options={
-                'verify_signature': True,
-                'verify_aud': settings.JWT_AUTH.get('VERIFY_AUD', True),
-            },
-        )
-
-    def _decode(self) -> dict:
+    def _decode(
+            self,
+            keys: list,
+            alg: str = 'HS256',
+    ) -> dict:
         """
         Decode the JWT and JWS.
 
         Returns:
             A dictionary containing the payload
         """
-        for key in self._keys:
+        verify_audience = settings.JWT_AUTH.get('VERIFY_AUD', True)
+        for key in keys:
             try:
                 return jwt.decode(
                     self._token,
                     key,
-                    algorithms=['HS256', 'RS256'],
+                    algorithms=[alg],
+                    options={
+                        'verify_signature': True,
+                        'verify_aud': verify_audience,
+                    }
                 )
             # If an InvalidSignatureError was raised try another key
             except jwt.InvalidSignatureError:

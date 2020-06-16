@@ -17,6 +17,7 @@ class Jwks:
 
     def get_jwk(self, header: dict):
         """Get JWK matching the kid in the token."""
+        # Cache the key set once retrieved.
         if not self._jwks:
             self._jwks = self._get_jwks()
 
