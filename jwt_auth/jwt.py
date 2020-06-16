@@ -23,13 +23,15 @@ class JWT:
         """The payload stored in the jwt."""
         if self._payload is None:
             unverified_header = jwt.get_unverified_header(self._token)
-            if 'kid' in unverified_header:
-                self._payload = self._decode_jws(unverified_header)
-            else:
+            if unverified_header.get('alg') == 'RS256':
+                self._payload = self._decode_rs256(unverified_header)
+
+            if not self._payload:
                 self._payload = self._decode()
+
         return self._payload
 
-    def _decode_jws(self, unverified_header: dict):
+    def _decode_rs256(self, unverified_header: dict):
         """Decode JWS."""
         return jwt.decode(
             self._token,
