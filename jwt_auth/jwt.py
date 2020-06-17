@@ -35,6 +35,9 @@ class JWT:
                     # kid in the header, and therefore it should be valid.
                     keys = [key]
 
+            if not keys:
+                raise ValueError('JWT_AUTH keys are not configured properly.')
+
             self._payload = self._decode(keys=keys, alg=alg)
 
         return self._payload
