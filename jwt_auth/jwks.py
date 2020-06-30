@@ -1,11 +1,15 @@
 """Utilities related to JWT."""
 import json
+import logging
 
 import requests
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.utils.encoding import force_str
 from jwt.algorithms import RSAAlgorithm
+from rest_framework import status
+
+logger = logging.getLogger()
 
 
 class Jwks:
@@ -38,11 +42,15 @@ class Jwks:
 
     @staticmethod
     def _get_jwks() -> dict:
+        logger.debug('Load JWKS.')
         jwks_endpoint = settings.JWT_AUTH.get('JWKS_ENDPOINT')
         if not jwks_endpoint:
+            logger.debug('JWKS_ENDPOINT not configured.')
             return {}
 
         response = requests.get(jwks_endpoint)
+        if response.status_code != status.HTTP_200_OK:
+            logger.error('Failed load JWKS.')
         response.raise_for_status()
 
         return response.json()
