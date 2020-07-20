@@ -76,10 +76,14 @@ JWT_AUTH = {
     ],
     'PERMISSION_ENDPOINT': '',
     'SERVICE_SECRET_TOKEN': '',
+    'JWKS_ENDPOINT': os.environ.get('JWKS_ENDPOINT'),
+    'VERIFY_AUD': False,
 }
 ```
 
 `PERMISSION_ENDPOINT` URL used to validate and get the user authorization data.
 `SERVICE_SECRET_TOKEN` is used to grant access for the other micro services.
+`JWKS_ENDPOINT` is used to get JSON Web Key Set.
+`VERIFY_AUD` is used to indicate whether to verify the `audience` attribute.
 
 Don't forget to add jwt_auth to django's installed apps.
