@@ -1,5 +1,5 @@
 """Provides a custom authentication class for JWT based authentication."""
-
+import logging
 from typing import Union
 from uuid import UUID
 
@@ -16,6 +16,9 @@ from jwt_auth.models import User
 from jwt_auth.service_authorization import ServiceRequestAuth
 
 
+logger = logging.getLogger()
+
+
 class JWTAuthentication(BaseAuthentication):
     """Authenticate requests with JWTs
     """
@@ -29,13 +32,17 @@ class JWTAuthentication(BaseAuthentication):
         Returns:
             The `user` and `auth` for the request. Or None if JWT was not used.
         """
+        logger.debug('JWT Authentication')
         token = self._get_token(request)
         if token:
             try:
                 user = self._get_user(token)
             except Exception:
+                logger.debug('JWT Authentication Failed')
                 raise AuthenticationFailed()
             return user, token
+        else:
+            logger.debug('No token')
         return None
 
     def authenticate_header(self, request: HttpRequest) -> str:
@@ -61,11 +68,22 @@ class JWTAuthentication(BaseAuthentication):
         Returns:
             The user who made the request
         """
-        keys = settings.JWT_AUTH['KEYS']
+        keys = settings.JWT_AUTH.get('KEYS', [])
+
         jwt = JWT(token, keys)
-        user = User(**jwt.payload)  # payload must have uuid and email.
+
+        try:
+            user = User(**jwt.payload)  # payload must have uuid and email.
+            logger.debug('Extracted user.')
+        except Exception as ex:
+            logger.debug(str(ex))
+            raise ex
+
         authorization = cls._get_authorization(user.id)
+        logger.debug('Authorization completed.')
+
         user.set_authorization(authorization)
+
         return user
 
     @staticmethod

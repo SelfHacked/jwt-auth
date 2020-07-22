@@ -13,11 +13,13 @@ class User:
         uuid: str,
         email: str,
         subscription: Optional[dict] = None,
+        signup_only: bool = False,
         **kwargs
     ):
         self._uuid = UUID(uuid)
         self._email = email
         self._subscription = subscription or {}
+        self._is_signup_only = signup_only
         self._properties = kwargs
 
     def __getattr__(self, name: str):
@@ -51,15 +53,21 @@ class User:
 
     @property
     def is_authenticated(self):
-        """Read only property that is always `True`
+        """Read only property that specify authentication access for user.
         """
-        return True
+        # Signup Only users are not considered as authenticated.
+        return not self._is_signup_only
+
+    @property
+    def is_signup_only(self):
+        """Read only property to check for Signup Only users."""
+        return self._is_signup_only
 
     @property
     def is_anonymous(self):
-        """Read only property that is always `False`
-        """
-        return False
+        """Specify whether user has anonymous access only."""
+        # Signup Only users are considered anonymous.
+        return self._is_signup_only
 
     @property
     def subscription(self):
